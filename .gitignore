@@ -1,0 +1,6 @@
+wandb/
+sbatch_outputs/
+*.sbatch
+results/
+*.log
+__pycache__/
