@@ -43,8 +43,9 @@ wandb.init(
 @click.option('--model', '-m', required=False, default="")
 @click.option('--num_workers', '-w', required=False, default=8)
 @click.option('--loss_weight', '-l', required=False, default=1, type=float)
+@click.option('--lr', '-l', help='Learning rate.', required=False, default=1e-4, type = float)
 
-def main(csv_path_train, store, csv_path_val, batch_size, epochs, frozen, num_workers, model, loss_weight):
+def main(csv_path_train, store, csv_path_val, batch_size, epochs, frozen, num_workers, model, loss_weight, lr):
     print("TRAINING CLASSIFICATION")
     set_seed()
     # seed_everything(2022, workers=True)
@@ -109,11 +110,15 @@ def main(csv_path_train, store, csv_path_val, batch_size, epochs, frozen, num_wo
         classifier.to(device)
     else:
         device = torch.device("cpu")
-   
-    lr = 1e-4
 
     optimizer = torch.optim.AdamW(classifier.parameters(), lr=lr, weight_decay=1e-4)
     criterion = nn.CrossEntropyLoss()
+
+    scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
+        optimizer,
+        T_max=epochs,      # one full cosine cycle over all epochs
+        eta_min=1e-6       # minimum learning rate
+    )
 
     acc_tab = Accuracy(num_classes=286, task="multiclass")
     acc_img = Accuracy(num_classes=286, task="multiclass")
@@ -123,7 +128,9 @@ def main(csv_path_train, store, csv_path_val, batch_size, epochs, frozen, num_wo
         epoch_loss = []
         epoch_val_loss = []
 
-        print("EPOCH: ", epoch)
+        current_lr = optimizer.param_groups[0]["lr"]
+        print(f"EPOCH: {epoch} | LR: {current_lr:.2e}")
+
         classifier.train()
         for data in tqdm(train_loader):
             optimizer.zero_grad()
@@ -175,6 +182,7 @@ def main(csv_path_train, store, csv_path_val, batch_size, epochs, frozen, num_wo
             "acc_img": acc_img_metric.item(),
             "acc_tab": acc_tab_metric.item(),
         })
+        scheduler.step()
 
         torch.save(classifier.state_dict(), os.path.join(classifier_folder, 'epoch' + str(epoch) + '.pth'))
         
