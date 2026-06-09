@@ -29,3 +29,14 @@ conda env create --file env.yml
 conda activate tab
 ```
 
+### Datasets
+
+- **DVM**: open-access and can be found under this <a href='https://deepvisualmarketing.github.io'>link</a>.
+- **UK Biobank**: semi-private dataset, you can apply for access <a href='https://www.ukbiobank.ac.uk/use-our-data/apply-for-access/'>here</a>.
+
+### Data Preparation
+
+Clean code for data preparation will be uploaded soon.
+
+  
+
