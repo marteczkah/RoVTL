@@ -39,4 +39,7 @@ conda activate tab
 Clean code for data preparation will be uploaded soon.
 
   
-
+## Acknowledgments
+We thank those repositories for their great work:
+- [TIP](https://github.com/siyi-wind/TIP)
+- [TGV](https://github.com/marteczkah/tables_guide_vision)
